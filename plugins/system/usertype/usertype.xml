@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ @package   PlgSystemUsertype
+  ~ @copyright Copyright (c)2020-2020 Nicholas K. Dionysopoulos
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension version="3.9.0" type="plugin" group="system" method="upgrade">
+    <name>PLG_SYSTEM_USERTYPE</name>
+    <version>1.0.0</version>
+    <creationDate>2020-12-23</creationDate>
+
+    <author>Nicholas K. Dionysopoulos</author>
+    <authorEmail>no-reply@dionysopoulos.me</authorEmail>
+    <authorUrl>https://www.dionysopoulos.me</authorUrl>
+
+    <copyright>Copyright (c)2020 Nicholas K. Dionysopoulos</copyright>
+    <license>GNU GPL v3 or later</license>
+
+    <description>PLG_SYSTEM_USERTYPE_DESCRIPTION</description>
+
+    <files>
+        <filename plugin="usertype">usertype.php</filename>
+        <folder>tmpl</folder>
+    </files>
+
+    <media folder="media" destination="plg_system_usertype">
+        <folder>css</folder>
+    </media>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_system_usertype.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_system_usertype.sys.ini</language>
+    </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field
+                        name="types"
+                        type="subform"
+                        label="PLG_SYSTEM_USERTYPE_TYPES_LABEL"
+                        description="PLG_SYSTEM_USERTYPE_TYPES_DESC"
+                        min="1"
+                        multiple="true"
+                        buttons="add,remove,move"
+                        layout="joomla.form.field.subform.repeatable-table"
+                        groupByFieldset="false"
+                >
+                    <form>
+                        <field
+                                name="title"
+                                type="text"
+                                label="PLG_SYSTEM_USERTYPE_TITLE_LABEL"
+                                description="PLG_SYSTEM_USERTYPE_TITLE_DESC"
+                        />
+
+						<field name="assign" type="UserGroupList"
+							   checksuperusergroup="1"
+							   default=""
+							   multiple="1"
+							   label="PLG_SYSTEM_USERTYPE_ASSIGN_LABEL"
+							   description="PLG_SYSTEM_USERTYPE_ASSIGN_DESC"
+						>
+							<option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+						</field>
+
+						<field name="hide_for" type="UserGroupList"
+							   checksuperusergroup="1"
+							   default=""
+							   multiple="1"
+							   label="PLG_SYSTEM_USERTYPE_HIDE_FOR_LABEL"
+							   description="PLG_SYSTEM_USERTYPE_HIDE_FOR_DESC"
+						>
+							<option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+						</field>
+                    </form>
+                </field>
+
+                <field name="excludeGroups" type="UserGroupList"
+                       checksuperusergroup="1"
+                       default=""
+                       multiple="1"
+                       label="PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LABEL"
+                       description="PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_DESC"
+                >
+                    <option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+                </field>
+
+                <field name="exemptComponents" type="textarea"
+                       rows="7" columns="50"
+                       default="com_loginguard.*.*, com_datacompliance.*.*, com_users.profile.*"
+                       label="PLG_SYSTEM_USERTYPE_EXEMPTCOMPONENTS_LABEL"
+                       description="PLG_SYSTEM_USERTYPE_EXEMPTCOMPONENTS_DESC"
+                />
+            </fieldset>
+        </fields>
+    </config>
+
+    <!-- Installation script -->
+    <!-- <scriptfile>script.plg_system_usertype.php</scriptfile> -->
+</extension>

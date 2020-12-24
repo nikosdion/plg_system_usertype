@@ -1,0 +1,18 @@
+{
+	"name": "nikosdion/plg_system_usertype",
+	"description": "User Type Selection – Allow first time users to select which groups they will be added in",
+	"minimum-stability": "stable",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Nicholas K. Dionysopoulos",
+			"homepage": "https://www.dionysopoulos.me",
+			"role": "Lead Developer"
+		}
+	],
+	"require": {
+		"php": "^7.2"
+	},
+	"suggest": {
+	}
+}
