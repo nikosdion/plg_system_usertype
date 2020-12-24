@@ -7,12 +7,16 @@
 
 defined('_JEXEC') || die;
 
+use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 
 class plgSystemUsertype extends CMSPlugin
@@ -28,61 +32,15 @@ class plgSystemUsertype extends CMSPlugin
 	/**
 	 * Triggers before Joomla renders the HTML page.
 	 *
-	 * @since  1.0.0
+	 * @return  void
+	 * @since   1.0.0
 	 */
 	public function onBeforeRender(): void
 	{
-		$user = Factory::getUser();
-
-		// Only trigger for logged in users
-		if (is_null($user) || $user->guest)
-		{
-			return;
-		}
-
-		// Only trigger in the front-end of the site
-		if (!$this->app->isClient('site'))
-		{
-			return;
-		}
-
-		// Only trigger for HTML display
-		/** @var HtmlDocument $document */
-		$document = $this->app->getDocument();
-
-		if (!($document instanceof HtmlDocument))
-		{
-			return;
-		}
-
-		// Do not trigger when a captive login component has taken over
-		if ($this->isExemptComponent($this->app->input->getCmd('option'), $this->app->input->getCmd('view'), $this->app->input->getCmd('task')))
-		{
-			return;
-		}
-
-		// Check user group exclusion rules
-		$excludeGroups = $this->params->get('excludeGroups', []) ?? [];
-
-		if ($this->userInGroups($user, $excludeGroups))
-		{
-			return;
-		}
-
-		// Do we have any user types defined in the plugin?
+		$user      = Factory::getUser();
 		$userTypes = (array) $this->params->get('types');
 
-		if (empty($userTypes))
-		{
-			return;
-		}
-
-		// Is the user already assigned in a user group defined in the user types?
-		$alreadyAssigned = array_reduce($userTypes, function (bool $carry, object $typeDef) use ($user) {
-			return $carry || $this->userInGroups($user, $typeDef->assign);
-		}, false);
-
-		if ($alreadyAssigned)
+		if (!$this->canTrigger($user))
 		{
 			return;
 		}
@@ -97,9 +55,9 @@ class plgSystemUsertype extends CMSPlugin
 			return;
 		}
 
-		//TODO Load layout
+		//Load layout
 		$layoutFile    = PluginHelper::getLayoutPath('system', 'usertype', 'default');
-		$layoutContent = $this->getLayoutContent($layoutFile);
+		$layoutContent = $this->getTemplateContent($layoutFile);
 
 		// That's one underhanded way to disable the plugin...
 		if (empty(trim($layoutContent)))
@@ -124,14 +82,63 @@ class plgSystemUsertype extends CMSPlugin
 			'name'  => '',
 			'title' => '',
 		]);
+
+		$redirect = $this->app->getSession()->set('plg_system_usertype.redirect', Uri::current());
 	}
 
-	public function onAjaxUsertype()
+	/**
+	 * Handler for the com_ajax URL pointing to this plugin. Redirect on completion.
+	 *
+	 * @return  void
+	 * @throws  NotAllowed When the security and consistency checks fail.
+	 * @throws  RuntimeException When the user save fails.
+	 * @since   1.0.0
+	 */
+	public function onAjaxUsertype(): void
 	{
-		// TODO Implement me
+		$token       = Session::getFormToken();
+		$user        = Factory::getUser();
+		$userTypeKey = $this->app->input->getCmd('typekey');
+		$userTypes   = (array) $this->params->get('types');
+
+		// Figure out which user types to display
+		$userTypes = array_filter($userTypes, function (object $typeDef) use ($user) {
+			return !$this->userInGroups($user, $typeDef->hide_for ?? []);
+		});
+
+		/**
+		 * Security check: we need a valid form token, ensure that the user is not already assigned to user groups which
+		 * would prevent displaying the user type selection page and that the requested user type does exist.
+		 */
+		if (($this->app->input->getInt($token, 0) != 1) || !$this->canTrigger($user) || !array_key_exists($userTypeKey, $userTypes))
+		{
+			throw new NotAllowed(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		// Assign the new groups to the user object
+		$user->groups = array_unique(array_merge($user->getAuthorisedGroups(), $userTypes[$userTypeKey]->assign));
+
+		if (!$user->save(true))
+		{
+			throw new RuntimeException($user->getError(), 500);
+		}
+
+		// Redirect to the next page
+		$redirect = $this->app->getSession()->get('plg_system_usertype.redirect', 'index.php');
+
+		$this->app->redirect($redirect);
 	}
 
-	private function getLayoutContent(string $file, array $extraData = []): string
+	/**
+	 * Returns the HTML output of a template layout
+	 *
+	 * @param   string  $file       The absolute filesystem path of the template layout file
+	 * @param   array   $extraData  Any additional variables to set in the template layout's scope
+	 *
+	 * @return  string  The HTML output of the template layout. Empty string on failure.
+	 * @since   1.0.0
+	 */
+	private function getTemplateContent(string $file, array $extraData = []): string
 	{
 		if (!file_exists($file) || !is_readable($file))
 		{
@@ -152,6 +159,75 @@ class plgSystemUsertype extends CMSPlugin
 	}
 
 	/**
+	 * Should I trigger the plugin for the given user?
+	 *
+	 * Performs a series of checks e.g. the user must be logged in, not already assigned to one or more groups set in
+	 * the user types and so on.
+	 *
+	 * @param   User|null  $user
+	 *
+	 * @return  bool
+	 * @since   1.0.0
+	 */
+	private function canTrigger(?User $user): bool
+	{
+		// Only trigger for logged in users
+		if (is_null($user) || $user->guest)
+		{
+			return false;
+		}
+
+		// Only trigger in the front-end of the site
+		if (!$this->app->isClient('site'))
+		{
+			return false;
+		}
+
+		// Only trigger for HTML display
+		/** @var HtmlDocument $document */
+		$document = $this->app->getDocument();
+
+		if (!($document instanceof HtmlDocument))
+		{
+			return false;
+		}
+
+		// Do not trigger when a captive login component has taken over
+		if ($this->isExemptComponent($this->app->input->getCmd('option'), $this->app->input->getCmd('view'), $this->app->input->getCmd('task')))
+		{
+			return false;
+		}
+
+		// Check user group exclusion rules
+		$excludeGroups = $this->params->get('excludeGroups', []) ?? [];
+
+		if ($this->userInGroups($user, $excludeGroups))
+		{
+			return false;
+		}
+
+		// Do we have any user types defined in the plugin?
+		$userTypes = (array) $this->params->get('types');
+
+		if (empty($userTypes))
+		{
+			return false;
+		}
+
+		// Is the user already assigned in a user group defined in the user types?
+		$alreadyAssigned = array_reduce($userTypes, function (bool $carry, object $typeDef) use ($user) {
+			return $carry || $this->userInGroups($user, $typeDef->assign);
+		}, false);
+
+		if ($alreadyAssigned)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Does the user belong in any of the given user groups?
 	 *
 	 * @param   User|null   $user         The user to test.
@@ -160,7 +236,7 @@ class plgSystemUsertype extends CMSPlugin
 	 * @return  bool  True if the user belongs to one or more groups
 	 * @since   1.0.0
 	 */
-	private function userInGroups(?User $user, ?array $checkGroups)
+	private function userInGroups(?User $user, ?array $checkGroups): bool
 	{
 		if (empty($user) || empty($checkGroups))
 		{
