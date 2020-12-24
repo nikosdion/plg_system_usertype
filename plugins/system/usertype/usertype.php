@@ -71,7 +71,7 @@ class plgSystemUsertype extends CMSPlugin
 
 		// Load the CSS and display the plugin's template instead of the component content on the page. Magic.
 		$mediaVersion = hash_hmac('md5', filesize(__FILE__) . '@' . filemtime(__FILE__), $this->app->get('secret'));
-		HTMLHelper::_('stylesheet', 'plg_system_usertype/usertype.min.css', [
+		HTMLHelper::_('stylesheet', 'plg_system_usertype/usertype.css', [
 			'version'       => $mediaVersion,
 			'relative'      => true,
 			'detectDebug'   => true,
@@ -114,7 +114,7 @@ class plgSystemUsertype extends CMSPlugin
 		 * Security check: we need a valid form token, ensure that the user is not already assigned to user groups which
 		 * would prevent displaying the user type selection page and that the requested user type does exist.
 		 */
-		if (($this->app->input->getInt($token, 0) != 1) || !$this->canTrigger($user) || !array_key_exists($userTypeKey, $userTypes))
+		if (($this->app->input->getInt($token, 0) != 1) || !$this->canTrigger($user, true) || !array_key_exists($userTypeKey, $userTypes))
 		{
 			throw new NotAllowed(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
@@ -173,7 +173,7 @@ class plgSystemUsertype extends CMSPlugin
 	 * @return  bool
 	 * @since   1.0.0
 	 */
-	private function canTrigger(?User $user): bool
+	private function canTrigger(?User $user, bool $forAjax = false): bool
 	{
 		// Only trigger for logged in users
 		if (is_null($user) || $user->guest)
@@ -191,13 +191,13 @@ class plgSystemUsertype extends CMSPlugin
 		/** @var HtmlDocument $document */
 		$document = $this->app->getDocument();
 
-		if (!($document instanceof HtmlDocument))
+		if (!$forAjax && !($document instanceof HtmlDocument))
 		{
 			return false;
 		}
 
 		// Do not trigger when a captive login component has taken over
-		if ($this->isExemptComponent($this->app->input->getCmd('option'), $this->app->input->getCmd('view'), $this->app->input->getCmd('task')))
+		if (!$forAjax && $this->isExemptComponent($this->app->input->getCmd('option'), $this->app->input->getCmd('view'), $this->app->input->getCmd('task')))
 		{
 			return false;
 		}

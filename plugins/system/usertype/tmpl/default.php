@@ -23,20 +23,20 @@ $hasBottomContent = !empty(trim(strip_tags($bottomContent)));
 ?>
 <section id="plg_system_usertype">
 	<?php if ($hasTopContent): ?>
-		<div class="class=" plg_system_usertype_topcontent">
+		<div class="plg_system_usertype_topcontent">
 		<?= $topContent ?>
 		</div>
 	<?php endif; ?>
 	<div class="plg_system_usertype_usertypes">
 		<?php foreach ($userTypes as $key => $type): ?>
-			<a class="plg_system_usertype_usertypes" rel="nofollow"
+			<a class="plg_system_usertype_usertype" rel="nofollow"
 			   href="<?= Route::_(sprintf("index.php?option=com_ajax&plugin=usertype&group=system&%s=1&typekey=%s&format=raw", $token, htmlentities($key))) ?>">
 				<?= $type->title ?>
 			</a>
 		<?php endforeach; ?>
 	</div>
 	<?php if ($hasBottomContent): ?>
-		<div class="class=" plg_system_usertype_bottomcontent">
+		<div class="plg_system_usertype_bottomcontent">
 		<?= $bottomContent ?>
 		</div>
 	<?php endif; ?>
