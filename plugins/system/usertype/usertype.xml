@@ -56,27 +56,53 @@
                                 description="PLG_SYSTEM_USERTYPE_TITLE_DESC"
                         />
 
-						<field name="assign" type="UserGroupList"
-							   checksuperusergroup="1"
-							   default=""
-							   multiple="1"
-							   label="PLG_SYSTEM_USERTYPE_ASSIGN_LABEL"
-							   description="PLG_SYSTEM_USERTYPE_ASSIGN_DESC"
-						>
-							<option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
-						</field>
+                        <field name="assign" type="UserGroupList"
+                               checksuperusergroup="1"
+                               default=""
+                               multiple="1"
+                               label="PLG_SYSTEM_USERTYPE_ASSIGN_LABEL"
+                               description="PLG_SYSTEM_USERTYPE_ASSIGN_DESC"
+                        >
+                            <option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+                        </field>
 
-						<field name="hide_for" type="UserGroupList"
-							   checksuperusergroup="1"
-							   default=""
-							   multiple="1"
-							   label="PLG_SYSTEM_USERTYPE_HIDE_FOR_LABEL"
-							   description="PLG_SYSTEM_USERTYPE_HIDE_FOR_DESC"
-						>
-							<option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
-						</field>
+                        <field name="hide_for" type="UserGroupList"
+                               checksuperusergroup="1"
+                               default=""
+                               multiple="1"
+                               label="PLG_SYSTEM_USERTYPE_HIDE_FOR_LABEL"
+                               description="PLG_SYSTEM_USERTYPE_HIDE_FOR_DESC"
+                        >
+                            <option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+                        </field>
                     </form>
                 </field>
+
+                <field
+                        name="topContent"
+                        type="editor"
+                        label="PLG_SYSTEM_USERTYPE_TOPCONTENT_LBL"
+                        description="PLG_SYSTEM_USERTYPE_TOPCONTENT_DESC"
+                        cols="50"
+                        rows="5"
+                        filter="safehtml"
+                        required="false"
+                        readonly="false"
+                        default=" "
+                />
+
+                <field
+                        name="bottomContent"
+                        type="editor"
+                        label="PLG_SYSTEM_USERTYPE_BOTTOMCONTENT_LBL"
+                        description="PLG_SYSTEM_USERTYPE_BOTTOMCONTENT_DESC"
+                        cols="50"
+                        rows="5"
+                        filter="safehtml"
+                        required="false"
+                        readonly="false"
+                        default=" "
+                />
 
                 <field name="excludeGroups" type="UserGroupList"
                        checksuperusergroup="1"

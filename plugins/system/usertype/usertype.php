@@ -57,7 +57,11 @@ class plgSystemUsertype extends CMSPlugin
 
 		//Load layout
 		$layoutFile    = PluginHelper::getLayoutPath('system', 'usertype', 'default');
-		$layoutContent = $this->getTemplateContent($layoutFile);
+		$layoutContent = $this->getTemplateContent($layoutFile, [
+			'userTypes'  => $userTypes,
+			'topContent' => $this->params->get('topContent', ''),
+			'bottomContent' => $this->params->get('bottomContent', ''),
+		]);
 
 		// That's one underhanded way to disable the plugin...
 		if (empty(trim($layoutContent)))
@@ -83,7 +87,7 @@ class plgSystemUsertype extends CMSPlugin
 			'title' => '',
 		]);
 
-		$redirect = $this->app->getSession()->set('plg_system_usertype.redirect', Uri::current());
+		$this->app->getSession()->set('plg_system_usertype.redirect', Uri::current());
 	}
 
 	/**
