@@ -54,6 +54,7 @@
                                 type="text"
                                 label="PLG_SYSTEM_USERTYPE_TITLE_LABEL"
                                 description="PLG_SYSTEM_USERTYPE_TITLE_DESC"
+                                required="true"
                         />
 
                         <field name="assign" type="UserGroupList"
@@ -62,6 +63,18 @@
                                multiple="1"
                                label="PLG_SYSTEM_USERTYPE_ASSIGN_LABEL"
                                description="PLG_SYSTEM_USERTYPE_ASSIGN_DESC"
+                               required="true"
+                        >
+                            <option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
+                        </field>
+
+                        <field name="remove" type="UserGroupList"
+                               checksuperusergroup="1"
+                               default=""
+                               multiple="1"
+                               label="PLG_SYSTEM_USERTYPE_REMOVE_LABEL"
+                               description="PLG_SYSTEM_USERTYPE_REMOVE_DESC"
+                               required="false"
                         >
                             <option value="0">PLG_SYSTEM_USERTYPE_EXCLUDEGROUPS_LBL_NOGROUP</option>
                         </field>

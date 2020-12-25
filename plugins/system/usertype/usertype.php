@@ -120,7 +120,18 @@ class plgSystemUsertype extends CMSPlugin
 		}
 
 		// Assign the new groups to the user object
-		$user->groups = array_unique(array_merge($user->getAuthorisedGroups(), $userTypes[$userTypeKey]->assign));
+		$user->groups = $user->getAuthorisedGroups();
+
+		if (!empty($userTypes[$userTypeKey]->assign))
+		{
+			$user->groups = array_unique(array_merge($user->groups, $userTypes[$userTypeKey]->assign));
+		}
+
+		// Remove groups from the user object
+		if (!empty($userTypes[$userTypeKey]->remove))
+		{
+			$user->groups = array_unique(array_diff($user->groups, $userTypes[$userTypeKey]->remove));
+		}
 
 		if (!$user->save(true))
 		{
