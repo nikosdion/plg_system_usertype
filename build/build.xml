@@ -14,24 +14,13 @@
 <project name="AkeebaSocialLogin" description="Akeeba Social Login" default="git" >
 	<import file="${phing.dir}/../../buildfiles/phing/common.xml" />
 
-	<!-- Fileset for building the package ZIP -->
-	<fileset dir="${dirs.release}" id="package">
-		<include name="com_*.zip" />
-		<include name="mod_*.zip" />
-		<include name="plg_*.zip" />
-		<include name="lib_*.zip" />
-		<include name="pkg_*.xml" />
-		<include name="*.txt" />
-		<include name="script.sociallogin.php" />
-	</fileset>
-
 	<!--
 	====================================================================================================
 	Build customization
 	====================================================================================================
 	-->
-	<target name="git" description="Makes only packages, not the documentation"
-			depends="new-release,setup-properties,package-plugins">
+	<target name="package-pkg" description="Installation package" depends="new-release, setup-properties, package-plugins">
+		<!-- Dependencies are enough -->
 	</target>
 
 	<target name="package-plugin-item" description="Package a single plugin">
@@ -58,5 +47,15 @@
 
 	<target name="docsdeploy">
 		<echo message="The documentation can be found in the repository's Wiki on GitHub. This task is obsolete." />
+	</target>
+
+	<!--
+	====================================================================================================
+	Tasks - Project management
+	====================================================================================================
+	-->
+
+	<target name="release" depends="guthub-release">
+		<!-- Dependencies are enough -->
 	</target>
 </project>

@@ -33,8 +33,3 @@ This is exactly what the User Type Selection plugin does. It will show a page to
 **Custom messages on the page**. You can customise the messages shown at the top and bottom of the User Type selection page.
 
 **Fully customisable HTML and CSS**. You can customise the look and feel of the User Type selection page using standard Joomla template overrides –both for the HTML and the CSS. You even get the SCSS source of the CSS files for easier customisation.
-
-## Requirements
-
-- Joomla 3.9, 3.10 or 4.0.
-- PHP 7.2, 7.3, 7.4 or 8.0.
