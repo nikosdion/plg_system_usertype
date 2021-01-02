@@ -87,7 +87,7 @@ class plgSystemUsertype extends CMSPlugin
 			'title' => '',
 		]);
 
-		$this->app->getSession()->set('plg_system_usertype.redirect', Uri::current());
+		$this->app->getSession()->set('plg_system_usertype.redirect', Uri::getInstance()->toString());
 	}
 
 	/**
