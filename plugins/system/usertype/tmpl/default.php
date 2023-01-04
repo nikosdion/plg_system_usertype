@@ -1,7 +1,7 @@
 <?php
 /*
  * @package   PlgSystemUsertype
- * @copyright Copyright (c)2020-2020 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2020-2023 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
